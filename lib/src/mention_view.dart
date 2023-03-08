@@ -303,8 +303,7 @@ class FlutterMentionsState extends State<FlutterMentions> {
       _selectedMention = null;
     });
 
-    final _list = widget.mentions
-        .firstWhere((element) => selectedMention.str.contains(element.trigger));
+    final _list = widget.mentions.firstWhere((element) => selectedMention.str.contains(element.trigger));
 
     // find the text by range and replace with the new value.
     controller!.text = controller!.value.text.replaceRange(
@@ -316,11 +315,9 @@ class FlutterMentionsState extends State<FlutterMentions> {
     if (widget.onMentionAdd != null) widget.onMentionAdd!(value);
 
     // Move the cursor to next position after the new mentioned item.
-    var nextCursorPosition =
-        selectedMention.start + 1 + value['display']?.length as int? ?? 0;
+    var nextCursorPosition = selectedMention.start + 1 + value['display']?.length as int? ?? 0;
     if (widget.appendSpaceOnAdd) nextCursorPosition++;
-    controller!.selection =
-        TextSelection.fromPosition(TextPosition(offset: nextCursorPosition));
+    controller!.selection = TextSelection.fromPosition(TextPosition(offset: nextCursorPosition));
   }
 
   void suggestionListerner() {
@@ -354,16 +351,11 @@ class FlutterMentionsState extends State<FlutterMentions> {
         _pattern = widget.mentions.map((e) => e.trigger).join('|');
 
         // Filter the list based on the latest entered mention
-        final list =
-            widget.mentions.firstWhere((e) => mention.contains(e.trigger)).data;
+        final list = widget.mentions.firstWhere((e) => mention.contains(e.trigger)).data;
         // Loop until the the mention is contain in given mention list or not
         while (list.indexWhere((element) {
               final search = element['search'] ?? element['display'];
-              return search.toLowerCase() ==
-                      mention.substring(1).toLowerCase() ||
-                  search
-                      .toLowerCase()
-                      .contains(mention.substring(1).toLowerCase());
+              return search.toLowerCase() == mention.substring(1).toLowerCase() || search.toLowerCase().contains(mention.substring(1).toLowerCase());
             }) !=
             -1) {
           // Assign full name mention to the list if the mention is is exist in the list
@@ -386,8 +378,7 @@ class FlutterMentionsState extends State<FlutterMentions> {
       textList.removeWhere((element) => element == "null");
 
       textList.forEach((element) {
-        lengthMap.add(
-            LengthMap(str: element, start: _pos, end: _pos + element.length));
+        lengthMap.add(LengthMap(str: element, start: _pos, end: _pos + element.length));
 
         _pos = _pos + element.length + 1;
       });
@@ -395,8 +386,7 @@ class FlutterMentionsState extends State<FlutterMentions> {
       final val = lengthMap.indexWhere((element) {
         _pattern = widget.mentions.map((e) => '\\${e.trigger}').join('|');
 
-        return element.end == cursorPos &&
-            element.str.toLowerCase().contains(RegExp(_pattern));
+        return element.end == cursorPos && element.str.toLowerCase().contains(RegExp(_pattern));
       });
 
       showSuggestions.value = val != -1;
@@ -465,20 +455,19 @@ class FlutterMentionsState extends State<FlutterMentions> {
   @override
   Widget build(BuildContext context) {
     // Filter the list based on the selection
-    final list = _selectedMention != null
-        ? widget.mentions.firstWhere(
-            (element) => _selectedMention!.str.contains(element.trigger))
-        : widget.mentions[0];
+    final list =
+        _selectedMention != null ? widget.mentions.firstWhere((element) => _selectedMention!.str.contains(element.trigger)) : widget.mentions[0];
 
     return Container(
-      child: PortalEntry(
-        portalAnchor: widget.suggestionPosition == SuggestionPosition.Bottom
-            ? Alignment.topCenter
-            : Alignment.bottomCenter,
-        childAnchor: widget.suggestionPosition == SuggestionPosition.Bottom
-            ? Alignment.bottomCenter
-            : Alignment.topCenter,
-        portal: ValueListenableBuilder(
+      child: PortalTarget(
+        anchor: Aligned(
+          follower: widget.suggestionPosition == SuggestionPosition.Bottom ? Alignment.topCenter : Alignment.bottomCenter,
+          target: widget.suggestionPosition == SuggestionPosition.Bottom ? Alignment.bottomCenter : Alignment.topCenter,
+          alignToPortal: const AxisFlag(
+            x: true,
+          ),
+        ),
+        portalFollower: ValueListenableBuilder(
           valueListenable: showSuggestions,
           builder: (BuildContext context, bool show, Widget? child) {
             Widget child = Container();
@@ -491,13 +480,9 @@ class FlutterMentionsState extends State<FlutterMentions> {
                   // final ele = element['display'].toLowerCase();
 
                   final ele = element['search'] ?? element['display'];
-                  final str = _selectedMention!.str
-                      .toLowerCase()
-                      .replaceAll(RegExp(_pattern), '');
+                  final str = _selectedMention!.str.toLowerCase().replaceAll(RegExp(_pattern), '');
 
-                  return ele.toLowerCase() == str
-                      ? false
-                      : ele.toLowerCase().contains(str);
+                  return ele.toLowerCase() == str ? false : ele.toLowerCase().contains(str);
                 }).toList(),
                 onTap: (value) {
                   addMention(value, list);
